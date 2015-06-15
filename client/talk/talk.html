@@ -1,0 +1,22 @@
+<template name="talk">
+<h1>Push the button to hear me talk</h1>
+<button class="talk">Say Hello</button>
+<br>
+<input type="text" name="words" id="words">
+<button class="say">Say</button>
+<hr/>
+<button class="getVoices">Get Voices</button>
+<hr/>
+<select id="voiceselect">
+	{{#each theVoices}}
+		{{> showvoice}}
+	{{/each}}
+</select>
+
+
+</template>
+
+
+<template name="showvoice">
+	<option class="voice"> {{name}} - {{lang}} </option>
+</template>
