@@ -1,3 +1,5 @@
+
+
 Template.dialogue.events({
 	'click button#speaker-turn': function(event){
 		if ($('#speaker-turn').html()=="start") {
@@ -33,7 +35,9 @@ function say(text){
 	msg.onend = function(event){
 		console.log("speech over"+ "said '"+msg.text+"' .... starting recognition!"); 
 		final_transcript = '';
-		recognition.start();};
+		recognition.start();
+		setTimeout(function(){handle_user_input("next")},5000);
+	};
 	window.speechSynthesis.speak(msg);
 }
 
@@ -41,9 +45,9 @@ var i = 0;
 
 function handle_user_input(u){
 	var responded = false;
-	console.log("hui: "+u);
+	console.log("hui: "+u+" i="+i);
 	u = u.toLowerCase();
-	if (u.indexOf("next")>-1) {
+	if ((u.indexOf("next")>-1) || (u.indexOf("start")>-1)) {
 		if (i < numbers.length){
 			console.log("saying "+i+"th number");
 			say(numbers[i++]);
@@ -52,8 +56,9 @@ function handle_user_input(u){
 		};
 
 		responded = true;
-	} else if (u.indexOf("stop")> -1) {
-		say("OK!  We're done here!");
+	} else if (u.indexOf("reset")> -1) {
+		i=0;
+		say("OK!  Resetting!");
 		responded = true;
 	} else if (u.indexOf("repeat")>-1){
 		say(numbers[i-1]);	
@@ -91,6 +96,7 @@ if ('webkitSpeechRecognition' in window) {
       for (var i = event.resultIndex; i < event.results.length; ++i) {
 		  console.log("i="+i+" words="+words);
 		var words = event.results[i][0].transcript;
+		//handle_user_input(words);
 		if (words.includes("stop dictation")) {
 			recognition.stop();
 		} else if (words.includes("read it back")){
