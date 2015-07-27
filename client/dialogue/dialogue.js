@@ -7,12 +7,14 @@ Template.dialogue.events({
 			$('#speaker-turn').html('start');
 			recognition.stop();
 			recognizing=false;
+			/*
 			var user_utterance = final_span.innerHTML;
 			user_utterance = user_utterance.substring(0,user_utterance.indexOf(' --'));
 			handle_user_input(user_utterance);
 			var response = "You just said "+user_utterance;
 			say(response);
 			handle_user_input(user_utterance.toLowerCase());
+			*/
 		}
 
 	}
@@ -20,9 +22,18 @@ Template.dialogue.events({
 })
 
 function say(text){
+	recognition.onend = function(){console.log("recognition is stopped"); sayitnow(text);};
+	console.log("stopping recognition");
 	recognition.stop();
-	var msg = new SpeechSynthesisUtterance(text);
-	msg.onend = function(event){recognition.start();};
+}
+	
+	function sayitnow(text){
+	console.log("starting to talk");
+	var msg = new SpeechSynthesisUtterance(text+".  What shall I do next?");
+	msg.onend = function(event){
+		console.log("speech over"+ "said '"+msg.text+"' .... starting recognition!"); 
+		final_transcript = '';
+		recognition.start();};
 	window.speechSynthesis.speak(msg);
 }
 
@@ -47,13 +58,6 @@ function handle_user_input(u){
 	} else if (u.indexOf("repeat")>-1){
 		say(numbers[i-1]);	
 		responded = true;
-	}
-	
-	if (responded){
-		console.log("starting dictation")
-		say("what shall I do next");
-		final_transcript = '';
-		startDictation();
 	}
 }
 
@@ -109,8 +113,7 @@ if ('webkitSpeechRecognition' in window) {
 	  
       final_span.innerHTML = linebreak(final_transcript);
       interim_span.innerHTML = linebreak(interim_transcript);
-	  console.log("ready to handle input: '"+final_transcript+"'");
-	  handle_user_input(final_transcript);
+	  
 	  
     };
 }
@@ -133,9 +136,10 @@ function startDictation(event) {
   }
   final_transcript = '';
   recognition.lang = 'en-US';
-  recognition.start();
+  
   final_span.innerHTML = '';
   interim_span.innerHTML = '';
+  recognition.start();
 }
 
 
