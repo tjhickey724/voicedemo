@@ -37,13 +37,13 @@ function say(text){
 var pauseTimeout = null;
 
 	function sayitnow(text){
-	console.log("starting to talk");
+	console.log("\n\nSPEAKING: "+text+"\n\n");
 	var msg = new SpeechSynthesisUtterance(text+".  Ready");
 	msg.onend = function(event){
-		console.log("speech over"+ "said '"+msg.text+"' .... starting recognition!"); 
+		console.log("speech over"+ "said '"+msg.text+"'\n\n RECOGNIZING\n\n"); 
 		final_transcript = '';
 		recognition.start();
-		pauseTimeout = window.setTimeout(function(){handle_user_input("next")},5000);
+		//pauseTimeout = window.setTimeout(function(){handle_user_input("next")},5000);
 	};
 	window.speechSynthesis.speak(msg);
 }
@@ -52,11 +52,11 @@ var i = 0;
 
 function handle_user_input(u){
 	var responded = false;
-	console.log("hui: "+u+" i="+i);
+	console.log("    hui: "+u+" i="+i);
 	u = u.toLowerCase();
 	if ((u.indexOf("next")>-1) || (u.indexOf("start")>-1)) {
 		if (i < numbers.length){
-			console.log("saying "+i+"th number");
+			console.log("   hui: saying "+i+"th number");
 			say(numbers[i++]);
 		} else {
 			say("there are no more numbers")
@@ -102,30 +102,24 @@ if ('webkitSpeechRecognition' in window) {
 		myevent = event;
       var interim_transcript = '';
       for (var i = event.resultIndex; i < event.results.length; ++i) {
-		  console.log("i="+i+" words="+words);
+		  console.log("   onResult: i="+i+" words="+words);
 		var words = event.results[i][0].transcript;
-		console.log("ready to handle input: '"+words+"'");
-		if (words) handle_user_input(words);
+		console.log("    onResult: ready to handle input: '"+words+"'");
+		//if (words) handle_user_input(words);
 		//handle_user_input(words);
-		if (words.includes("stop dictation")) {
-			recognition.stop();
-		} else if (words.includes("read it back")){
-			var msg = new SpeechSynthesisUtterance(words);
-			window.speechSynthesis.speak(msg);
-		}
         if (event.results[i].isFinal) {
-        	console.log("final result is |"+event.results[i][0].transcript.trim()+"|");
+        	console.log("    onResult: final result is |"+event.results[i][0].transcript.trim()+"|");
           final_transcript += 
 			capitalize(event.results[i][0].transcript.trim()) +" -- " + Math.round(100*event.results[i][0].confidence)+"%\n";
-			console.log('final events.results[i][0].transcript = '+ JSON.stringify(event.results[i][0].transcript));
+			console.log('    onResult: final events.results[i][0].transcript = '+ JSON.stringify(event.results[i][0].transcript));
         } else {
           interim_transcript += Math.round(100*event.results[i][0].confidence) + "%: "+ event.results[i][0].transcript+"<br>";
-		  console.log('interim events.results[i][0].transcript = '+ JSON.stringify(event.results[i][0].transcript));
+		  console.log('    onResult: interim events.results[i][0].transcript = '+ JSON.stringify(event.results[i][0].transcript));
         }
       }
       //final_transcript = capitalize(final_transcript);
-	  //console.log("ready to handle input: '"+final_transcript+"'");
-	  //handle_user_input(final_transcript);
+	  console.log("ready to handle input: '"+final_transcript+"'");
+	  handle_user_input(final_transcript);
 	  
       final_span.innerHTML = linebreak(final_transcript);
       interim_span.innerHTML = linebreak(interim_transcript);
