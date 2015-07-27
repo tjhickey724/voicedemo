@@ -24,19 +24,26 @@ Template.dialogue.events({
 })
 
 function say(text){
+	if (pauseTimeout){
+		console.log("clearing pause Timeout");
+		window.clearTimeout(pauseTimeout);
+		pauseTimeout = null;
+	}
 	recognition.onend = function(){console.log("recognition is stopped"); sayitnow(text);};
 	console.log("stopping recognition");
 	recognition.stop();
 }
 	
+var pauseTimeout = null;
+
 	function sayitnow(text){
 	console.log("starting to talk");
-	var msg = new SpeechSynthesisUtterance(text+".  What shall I do next?");
+	var msg = new SpeechSynthesisUtterance(text+".  Ready");
 	msg.onend = function(event){
 		console.log("speech over"+ "said '"+msg.text+"' .... starting recognition!"); 
 		final_transcript = '';
 		recognition.start();
-		setTimeout(function(){handle_user_input("next")},5000);
+		pauseTimeout = window.setTimeout(function(){handle_user_input("next")},5000);
 	};
 	window.speechSynthesis.speak(msg);
 }
@@ -64,6 +71,7 @@ function handle_user_input(u){
 		say(numbers[i-1]);	
 		responded = true;
 	}
+	
 }
 
 var final_transcript = '';
@@ -96,6 +104,8 @@ if ('webkitSpeechRecognition' in window) {
       for (var i = event.resultIndex; i < event.results.length; ++i) {
 		  console.log("i="+i+" words="+words);
 		var words = event.results[i][0].transcript;
+		console.log("ready to handle input: '"+words+"'");
+		if (words) handle_user_input(words);
 		//handle_user_input(words);
 		if (words.includes("stop dictation")) {
 			recognition.stop();
@@ -114,8 +124,8 @@ if ('webkitSpeechRecognition' in window) {
         }
       }
       //final_transcript = capitalize(final_transcript);
-	  console.log("ready to handle input: '"+final_transcript+"'");
-	  handle_user_input(final_transcript);
+	  //console.log("ready to handle input: '"+final_transcript+"'");
+	  //handle_user_input(final_transcript);
 	  
       final_span.innerHTML = linebreak(final_transcript);
       interim_span.innerHTML = linebreak(interim_transcript);
